@@ -1,16 +1,10 @@
-Practical Test .NET Software Developer ke PT. Esphere Techno Corindo
-
-Duration: 1,5 Hours max
-Objective: Make meeting room booking application in .NET as a backend
-
-Requirement:
-Create repository on Github named “test_technical_code”
-Make it public
-Commit both frontend and backend on the same repository
+Consists of:
+Web App -> .NET Framework
+Web API -> .NET Core
 
 Backend (.NET core):
 Store data on SQL Lite or SQL Server.
-Apply clean OOP principles.
+
 Provide Rest API to booking meeting rooms with suggestions of available slots.
 Make 2 meeting rooms. Meeting room A fits up to 5 people. Meeting room B fits up to 10 people.
 By default
