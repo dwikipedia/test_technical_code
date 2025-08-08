@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiResponse.cs" />
     <Compile Include="Book.cs" />
     <Compile Include="BookDto.cs" />
+    <Compile Include="BookingData.cs" />
     <Compile Include="MeetingRoom.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

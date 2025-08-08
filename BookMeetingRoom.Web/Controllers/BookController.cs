@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -71,9 +72,21 @@ namespace BookMeetingRoom.Web.Controllers
                 }
                 else
                 {
-                    string message = await response.Content.ReadAsStringAsync();
+                    string json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<ApiResponse<BookingData>>(json);
 
-                    ViewData["BookingMessage"] = message;
+                    ViewData["Message"] = result.Message;
+                    var suggestion = result.Data
+                     .Where(s => s != null)
+                     .Select(s => new SuggestionViewModel
+                     {
+                         RoomName = s.Id == 1 ? "Meeting Room A" : "Meeting Room B",
+                         StartTime = s.StartTime,
+                         EndTime = s.EndTime
+                     })
+                     .ToList();
+
+                    ViewData["Suggestions"] = suggestion;
 
                     ModelState.AddModelError("", "Failed to book a meeting room");
                 }

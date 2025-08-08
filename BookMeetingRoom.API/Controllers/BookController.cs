@@ -43,45 +43,44 @@ namespace BookMeetingRoom.API.Controllers
                 TimeSpan proposedTime = TimeSpan.Parse(data.Time).Add(data.Duration);
 
                 string message = "";
-                string slotA = "", slotB = "";
+                //string slotA = "", slotB = "";
+                var suggestions = new List<BookingData>();
 
                 if (data.NumOfPeople > 0)
                 {
-                    if (data.NumOfPeople <= 5)
-                    {
-                        var foundSlot = timeSlotsA
-                            .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
+                    // Room A (max 5 ppl)
+                    CheckRoomAvailability(timeSlotsA, 1, 5, data.NumOfPeople, proposedTime, suggestions);
 
-                        //rejected, suggest available time slot
-                        if (foundSlot != null)
-                        {
-                            slotA = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt");
-                        }
-                    }
-
-                    //meeting room B = 10 ppl
-                    if (data.NumOfPeople <= 10)
-                    {
-                        var foundSlot = timeSlotsB
-                            .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
-
-                        if (foundSlot != null)
-                        {
-                            slotB = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt");
-                        }
-                    }
+                    // Room B (max 10 ppl)
+                    CheckRoomAvailability(timeSlotsB, 2, 10, data.NumOfPeople, proposedTime, suggestions);
                 }
 
-                if (!string.IsNullOrEmpty(slotA) || !string.IsNullOrEmpty(slotB))
+                if (suggestions.Any())
                 {
-                    var slots = new List<string>();
+                    var roomMappings = new Dictionary<int, string>
+                    {
+                        { 1, "Room A" },
+                        { 2, "Room B" }
+                    };
 
-                    if (!string.IsNullOrEmpty(slotA)) slots.Add($"{slotA} in Room A");
-                    if (!string.IsNullOrEmpty(slotB)) slots.Add($"{slotB} in Room B");
+                    var slots = roomMappings
+                        .Select(m =>
+                        {
+                            var endTime = suggestions.FirstOrDefault(x => x.Id == m.Key)?.EndTime;
+                            return endTime != null ? $"{endTime} in {m.Value}" : null;
+                        })
+                        .Where(s => s != null)
+                        .ToList();
 
                     message = $"Rejected, available on {string.Join(" and ", slots)}";
 
-                    return BadRequest(message);
+                    var response = new ApiResponse<BookingData>
+                    {
+                        Message = message,
+                        Data = suggestions
+                    };
+
+                    return BadRequest(response);
                 }
 
                 //Good to go! Let's insert to db!
@@ -105,6 +104,34 @@ namespace BookMeetingRoom.API.Controllers
                 return StatusCode(500, "Error Occurred: " + ex.Message);
             }
         }
+
+        private void CheckRoomAvailability(
+            List<TimeSlot> timeSlots,
+            int roomId,
+            int capacityLimit,
+            int numOfPeople,
+            TimeSpan proposedTime,
+            List<BookingData> suggestions)
+        {
+            if (numOfPeople > capacityLimit)
+                return;
+
+            var foundSlot = timeSlots
+                .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
+
+            if (foundSlot != null)
+            {
+                var suggestion = new BookingData
+                {
+                    Id = roomId,
+                    StartTime = DateTime.Today.Add(foundSlot.StartTime).ToString("hh:mm tt"),
+                    EndTime = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt")
+                };
+
+                suggestions.Add(suggestion);
+            }
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBookById(int id)
