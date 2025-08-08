@@ -25,24 +25,12 @@ namespace BookMeetingRoom.Web.Controllers
                 new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        private List<SelectListItem> GetDurationOptions()
-        {
-            return new List<SelectListItem>
-            {
-                new SelectListItem { Value = "15", Text = "15 minutes" },
-                new SelectListItem { Value = "30", Text = "30 minutes" },
-                new SelectListItem { Value = "45", Text = "45 minutes" },
-                new SelectListItem { Value = "60", Text = "1 hour" },
-                new SelectListItem { Value = "90", Text = "1.5 hours" },
-                new SelectListItem { Value = "120", Text = "2 hours" }
-            };
-        }
-
         public ActionResult Index()
         {
             var model = new BookViewModel
             {
                 Time = "08.00am",
+                TimeOptions = GetTimeOptions(),
                 DurationInMinutes = GetDurationOptions()
             };
 
@@ -54,6 +42,7 @@ namespace BookMeetingRoom.Web.Controllers
         public async Task<ActionResult> Book(BookViewModel vm)
         {
             vm.DurationInMinutes = GetDurationOptions();
+            vm.TimeOptions = GetTimeOptions();
 
             if (!ModelState.IsValid)
             {
@@ -80,8 +69,14 @@ namespace BookMeetingRoom.Web.Controllers
                 {
                     return View("Index", new BookViewModel());
                 }
-                
-                ModelState.AddModelError("", "Failed to book a meeting room");
+                else
+                {
+                    string message = await response.Content.ReadAsStringAsync();
+
+                    ViewData["BookingMessage"] = message;
+
+                    ModelState.AddModelError("", "Failed to book a meeting room");
+                }
             }
             catch (Exception ex)
             {
@@ -90,5 +85,62 @@ namespace BookMeetingRoom.Web.Controllers
 
             return View("Index", vm);
         }
+
+        private List<SelectListItem> GetTimeOptions()
+        {
+            var times = new List<SelectListItem>();
+
+            DateTime start = DateTime.Today.AddHours(7);      // 7:00 AM
+            DateTime end = DateTime.Today.AddHours(16.5);     // 4:30 PM
+
+            for (var time = start; time <= end; time = time.AddMinutes(15))
+            {
+                times.Add(new SelectListItem
+                {
+                    Value = time.ToString("HH:mm"),  // 24-hour format value
+                    Text = time.ToString("h:mm tt")  // Display as 7:00 AM, 7:15 AM, etc.
+                });
+            }
+
+            return times;
+        }
+
+        private List<SelectListItem> GetDurationOptions()
+        {
+            var list = new List<SelectListItem>();
+
+            for (int minutes = 15; minutes <= 120; minutes += 15)
+            {
+                string text;
+
+                if (minutes < 60)
+                {
+                    text = $"{minutes} minutes";
+                }
+                else
+                {
+                    int hours = minutes / 60;
+                    int mins = minutes % 60;
+
+                    if (mins == 0)
+                        text = $"{hours} hour{(hours > 1 ? "s" : "")}";
+                    else if (mins == 15)
+                        text = $"{hours} hour {mins} min";
+                    else if (mins == 30)
+                        text = $"{hours}.5 hours";
+                    else
+                        text = $"{hours} hour {mins} min";
+                }
+
+                list.Add(new SelectListItem
+                {
+                    Value = minutes.ToString(),
+                    Text = text
+                });
+            }
+
+            return list;
+        }
+
     }
 }

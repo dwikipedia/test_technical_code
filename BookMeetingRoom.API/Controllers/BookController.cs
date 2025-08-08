@@ -39,6 +39,52 @@ namespace BookMeetingRoom.API.Controllers
 
             try
             {
+                //validation
+                TimeSpan proposedTime = TimeSpan.Parse(data.Time).Add(data.Duration);
+
+                string message = "";
+                string slotA = "", slotB = "";
+
+                if (data.NumOfPeople > 0)
+                {
+                    if (data.NumOfPeople <= 5)
+                    {
+                        var foundSlot = timeSlotsA
+                            .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
+
+                        //rejected, suggest available time slot
+                        if (foundSlot != null)
+                        {
+                            slotA = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt");
+                        }
+                    }
+
+                    //meeting room B = 10 ppl
+                    if (data.NumOfPeople <= 10)
+                    {
+                        var foundSlot = timeSlotsB
+                            .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
+
+                        if (foundSlot != null)
+                        {
+                            slotB = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt");
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(slotA) || !string.IsNullOrEmpty(slotB))
+                {
+                    var slots = new List<string>();
+
+                    if (!string.IsNullOrEmpty(slotA)) slots.Add($"{slotA} in Room A");
+                    if (!string.IsNullOrEmpty(slotB)) slots.Add($"{slotB} in Room B");
+
+                    message = $"Rejected, available on {string.Join(" and ", slots)}";
+
+                    return BadRequest(message);
+                }
+
+                //Good to go! Let's insert to db!
                 var book = new Book
                 {
                     Name = data.Name,
@@ -46,21 +92,6 @@ namespace BookMeetingRoom.API.Controllers
                     NumOfPeople = data.NumOfPeople,
                     Time = data.Time
                 };
-
-                //meeting room A = 5 ppl
-                if (data.NumOfPeople > 0)
-                {
-                    if (data.NumOfPeople <= 5)
-                    {
-
-                    }
-
-                    //meeting room B = 10 ppl
-                    else if (data.NumOfPeople <= 10)
-                    {
-                    }
-                }
-
 
                 await _context.Books.AddAsync(book);
 

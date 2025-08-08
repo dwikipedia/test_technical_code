@@ -17,6 +17,7 @@ namespace BookMeetingRoom.Web.Models
         [Display(Name = "Duration")]
         public int Duration { get; set; }
         public List<SelectListItem> DurationInMinutes { get; set; }
+        public List<SelectListItem> TimeOptions { get; set; }
 
         [DataType(DataType.Time)]
         [Display(Name = "Time")]
@@ -25,5 +26,7 @@ namespace BookMeetingRoom.Web.Models
 
         [Display(Name = "Number of People")]
         public int NumOfPeople { get; set; }
+
+
     }
 }
