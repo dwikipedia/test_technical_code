@@ -1,4 +1,4 @@
-﻿using BookMeetingRoom.Dto;
+﻿using BookMeetingRoom.Data;
 using BookMeetingRoom.Web.Models;
 using Newtonsoft.Json;
 using System;
@@ -80,7 +80,8 @@ namespace BookMeetingRoom.Web.Controllers
                      .Where(s => s != null)
                      .Select(s => new SuggestionViewModel
                      {
-                         RoomName = s.Id == 1 ? "Meeting Room A" : "Meeting Room B",
+                         Id = s.Id,
+                         RoomName = s.RoomName,
                          StartTime = s.StartTime,
                          EndTime = s.EndTime
                      })

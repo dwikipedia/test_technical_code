@@ -1,5 +1,6 @@
 using BookMeetingRoom.API.DbContext;
-using BookMeetingRoom.Dto;
+using BookMeetingRoom.Data;
+using BookMeetingRoom.Dto.Constant;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookMeetingRoom.API.Controllers
@@ -15,73 +16,29 @@ namespace BookMeetingRoom.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> Book([FromBody] BookDto data)
         {
-            var timeSlotsA = new List<TimeSlot>
-            {
-                new TimeSlot{StartTime=TimeSpan.FromHours(7), EndTime= TimeSpan.FromHours(9)},
-                new TimeSlot{StartTime=TimeSpan.FromHours(9.45), EndTime= TimeSpan.FromHours(10.35)},
-                new TimeSlot{StartTime=TimeSpan.FromHours(14), EndTime= TimeSpan.FromHours(15)},
-            };
-
-            var timeSlotsB = new List<TimeSlot>
-            {
-                new TimeSlot{StartTime=TimeSpan.FromHours(8), EndTime= TimeSpan.FromHours(10)},
-                new TimeSlot{StartTime=TimeSpan.FromHours(10.45), EndTime= TimeSpan.FromHours(12)},
-                new TimeSlot{StartTime=TimeSpan.FromHours(14), EndTime= TimeSpan.FromHours(15)},
-            };
-
-            var rooms = new List<MeetingRoom>
-            {
-                new() { Name = "Meeting Room A", AvailableSlots = timeSlotsA },
-                new() { Name = "Meeting Room B", AvailableSlots = timeSlotsB }
-            };
-
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
-                //validation
-                TimeSpan proposedTime = TimeSpan.Parse(data.Time).Add(data.Duration);
+                var meetingRooms = MeetingRoomData.Rooms;
+                TimeSpan proposedEndTime = TimeSpan.Parse(data.Time).Add(data.Duration);
 
-                string message = "";
-                //string slotA = "", slotB = "";
+                if (data.NumOfPeople == 1)
+                {
+                    return BadRequest(new ApiResponse<BookingData>
+                    {
+                        Message = "Rejected, why would you want to have a meeting by yourself?",
+                        Data = new List<BookingData>()
+                    });
+                }
+
                 var suggestions = new List<BookingData>();
+                CheckRoomAvailability(meetingRooms, proposedEndTime, suggestions);
 
-                if (data.NumOfPeople > 0)
-                {
-                    // Room A (max 5 ppl)
-                    CheckRoomAvailability(timeSlotsA, 1, 5, data.NumOfPeople, proposedTime, suggestions);
+                var response = CheckSuggestions(suggestions);
 
-                    // Room B (max 10 ppl)
-                    CheckRoomAvailability(timeSlotsB, 2, 10, data.NumOfPeople, proposedTime, suggestions);
-                }
-
-                if (suggestions.Any())
-                {
-                    var roomMappings = new Dictionary<int, string>
-                    {
-                        { 1, "Room A" },
-                        { 2, "Room B" }
-                    };
-
-                    var slots = roomMappings
-                        .Select(m =>
-                        {
-                            var endTime = suggestions.FirstOrDefault(x => x.Id == m.Key)?.EndTime;
-                            return endTime != null ? $"{endTime} in {m.Value}" : null;
-                        })
-                        .Where(s => s != null)
-                        .ToList();
-
-                    message = $"Rejected, available on {string.Join(" and ", slots)}";
-
-                    var response = new ApiResponse<BookingData>
-                    {
-                        Message = message,
-                        Data = suggestions
-                    };
-
+                if (response != null)
                     return BadRequest(response);
-                }
 
                 //Good to go! Let's insert to db!
                 var book = new Book
@@ -93,8 +50,6 @@ namespace BookMeetingRoom.API.Controllers
                 };
 
                 await _context.Books.AddAsync(book);
-
-                //insert to local db
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetBookById), new { id = data.Id }, book);
@@ -106,32 +61,49 @@ namespace BookMeetingRoom.API.Controllers
         }
 
         private void CheckRoomAvailability(
-            List<TimeSlot> timeSlots,
-            int roomId,
-            int capacityLimit,
-            int numOfPeople,
+            List<MeetingRoom> meetingRooms,
             TimeSpan proposedTime,
             List<BookingData> suggestions)
         {
-            if (numOfPeople > capacityLimit)
-                return;
-
-            var foundSlot = timeSlots
-                .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
-
-            if (foundSlot != null)
+            foreach (var i in meetingRooms)
             {
-                var suggestion = new BookingData
-                {
-                    Id = roomId,
-                    StartTime = DateTime.Today.Add(foundSlot.StartTime).ToString("hh:mm tt"),
-                    EndTime = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt")
-                };
+                var foundSlot = i.AvailableSlots
+                    .FirstOrDefault(slot => proposedTime >= slot.StartTime && proposedTime <= slot.EndTime);
 
-                suggestions.Add(suggestion);
+                if (foundSlot != null)
+                {
+                    var suggestion = new BookingData
+                    {
+                        Id = i.Id,
+                        RoomName = i.Name,
+                        StartTime = DateTime.Today.Add(foundSlot.StartTime).ToString("hh:mm tt"),
+                        EndTime = DateTime.Today.Add(foundSlot.EndTime).ToString("hh:mm tt")
+                    };
+
+                    suggestions.Add(suggestion);
+                }
             }
         }
 
+        private ApiResponse<BookingData> CheckSuggestions(List<BookingData> suggestions)
+        {
+            var response = new ApiResponse<BookingData>();
+
+            if (suggestions.Any())
+            {
+                var slots = suggestions
+                    .Select(s => $"{s.EndTime} in {s.RoomName}")
+                    .ToList();
+
+                response = new ApiResponse<BookingData>
+                {
+                    Message = $"Rejected, available on {string.Join(" and ", slots)}",
+                    Data = suggestions
+                };
+            }
+
+            return response;
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBookById(int id)

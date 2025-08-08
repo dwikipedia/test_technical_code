@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BookMeetingRoom.Dto
+namespace BookMeetingRoom.Data
 {
     public class ApiResponse<T>
     {

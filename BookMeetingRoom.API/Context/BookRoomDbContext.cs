@@ -1,4 +1,4 @@
-﻿using BookMeetingRoom.Dto;
+﻿using BookMeetingRoom.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMeetingRoom.API.DbContext

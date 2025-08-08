@@ -7,6 +7,7 @@ namespace BookMeetingRoom.Web.Models
 {
     public class SuggestionViewModel
     {
+        public int Id { get; set; }
         public string RoomName { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }

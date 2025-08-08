@@ -46,8 +46,10 @@
     <Compile Include="Book.cs" />
     <Compile Include="BookDto.cs" />
     <Compile Include="BookingData.cs" />
+    <Compile Include="Constant\MeetingRoomData.cs" />
     <Compile Include="MeetingRoom.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

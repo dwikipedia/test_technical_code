@@ -272,9 +272,9 @@
     <Content Include="Scripts\jquery-3.7.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BookMeetingRoom.Dto\BookMeetingRoom.Dto.csproj">
+    <ProjectReference Include="..\BookMeetingRoom.Dto\BookMeetingRoom.Data.csproj">
       <Project>{63782534-4f06-4f0f-b363-084df33fde29}</Project>
-      <Name>BookMeetingRoom.Dto</Name>
+      <Name>BookMeetingRoom.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

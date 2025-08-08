@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookMeetingRoom.Dto
+namespace BookMeetingRoom.Data
 {
     public class MeetingRoom
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public List<TimeSlot> AvailableSlots { get; set; }
     }
