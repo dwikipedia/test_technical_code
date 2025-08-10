@@ -1,0 +1,16 @@
+﻿@{ var warningMessage = ViewData["Message"];}
+
+
+@if (warningMessage != null)
+{
+    <div class="card mt-5">
+        <div class="card-body">
+            <h5 class="card-title">WARNING!</h5>
+            <p class="card-text">
+                <div class="alert alert-warning">
+                    @warningMessage
+                </div>
+            </p>
+        </div>
+    </div>
+}

@@ -1,0 +1,33 @@
+﻿@{
+    var suggestions = ViewData["Suggestions"] as List<BookMeetingRoom.Web.Models.SuggestionViewModel>;
+}
+
+@if (suggestions?.Any() == true)
+{
+    <div class="col-lg-12 mt-5">
+        <h3>Suggestion</h3>
+        <h6 class="mb-2 text-muted">Click on the suggestion to fill in the form automatically.</h6>
+    </div>
+
+    <table id="suggestionsTable"
+           class="table table-bordered table-hover text-center table-responsive-sm">
+        <thead class="thead-dark bg-dark text-white">
+            <tr>
+                @foreach (var s in suggestions)
+                {
+                    <th>@s.RoomName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @foreach (var s in suggestions)
+                {
+                    <td class="time-suggestion" data-time="@($"{s.StartTime} to {s.EndTime}")">
+                        @($"{s.StartTime} to {s.EndTime}")
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+}

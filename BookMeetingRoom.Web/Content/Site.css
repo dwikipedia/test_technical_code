@@ -18,3 +18,26 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.time-suggestion {
+    cursor: pointer;
+}
+/* animation for the hovered column */
+#suggestionsTable th.hovered,
+#suggestionsTable td.hovered {
+    background-color: #e6f3ff;
+    transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* keep th visually distinct (optional) */
+#suggestionsTable thead th.hovered {
+    color: #fff;
+    background-color: #2b2f33; /* darker header when hovered */
+}
+
+.required::after {
+    content: " *";
+    color: red;
+}
