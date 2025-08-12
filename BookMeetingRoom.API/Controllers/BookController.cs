@@ -1,6 +1,6 @@
 using BookMeetingRoom.API.DbContext;
 using BookMeetingRoom.Data;
-using BookMeetingRoom.Dto.Constant;
+using BookMeetingRoom.Data.Constant;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookMeetingRoom.API.Controllers

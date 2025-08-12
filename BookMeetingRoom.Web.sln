@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookMeetingRoom.Web", "Book
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookMeetingRoom.API", "BookMeetingRoom.API\BookMeetingRoom.API.csproj", "{BDE4713C-2769-4963-A1AB-B1FBC634E248}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookMeetingRoom.Data", "BookMeetingRoom.Dto\BookMeetingRoom.Data.csproj", "{63782534-4F06-4F0F-B363-084DF33FDE29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookMeetingRoom.Data", "BookMeetingRoom.Data\BookMeetingRoom.Data.csproj", "{63782534-4F06-4F0F-B363-084DF33FDE29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

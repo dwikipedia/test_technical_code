@@ -1,4 +1,4 @@
-﻿using BookMeetingRoom.Dto.Constant;
+﻿using BookMeetingRoom.Data.Constant;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

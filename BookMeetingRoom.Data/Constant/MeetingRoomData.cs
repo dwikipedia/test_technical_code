@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 
-namespace BookMeetingRoom.Dto.Constant
+namespace BookMeetingRoom.Data.Constant
 {
     public static class MeetingRoomData
     {
